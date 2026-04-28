@@ -1,0 +1,25 @@
+<% require 'cgi' %><?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><%= CGI.escapeHTML site.title.to_s %></title>
+  <id>urn:planet:<%= CGI.escapeHTML site.title.to_s %></id>
+  <updated><%= Time.now.utc.iso8601 %></updated>
+  <generator><%= CGI.escapeHTML Pluto.generator.to_s %></generator>
+<% site.items.latest.limit(100).each do |item| %>
+  <entry>
+    <title><%= CGI.escapeHTML item.title.to_s %></title>
+    <link href="<%= CGI.escapeHTML item.url.to_s %>"/>
+    <id><%= CGI.escapeHTML(item.guid.to_s.empty? ? item.url.to_s : item.guid.to_s) %></id>
+    <updated><%= (item.published || item.updated || Time.now).utc.iso8601 %></updated>
+<% body = item.content || item.summary %>
+<% if body %>
+    <content type="html"><%= CGI.escapeHTML body.to_s %></content>
+<% end %>
+    <author>
+      <name><%= CGI.escapeHTML item.feed.title.to_s %></name>
+<% if item.feed.url %>
+      <uri><%= CGI.escapeHTML item.feed.url.to_s %></uri>
+<% end %>
+    </author>
+  </entry>
+<% end %>
+</feed>
